@@ -1,0 +1,462 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+      integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* hide scrollbar in categories */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Poppins", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <!-- theme colors
+   primary: #3a513e
+   vanilla: #fbf7ee
+   dark-vanilla: #f9f3e7
+   divider: #cac2a7
+   green: #90a04c
+   brown: #a26246
+   -->
+  <body class="bg-[#fbf7ee]">
+    <!-- navbar  -->
+    <div
+      class="container flex flex-row justify-between mx-auto py-4 max-w-[550px] px-2 lg:px-0 md:max-w-[720px] lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl lg:justify-between items-center text-[#3a513e]"
+    >
+    <a href="/index.htm">
+      <button
+        class="w-10 h-10 bg-[#f9f3e7] text-[#3a513e] border border-[#cac2a7]/40 rounded-full flex items-center justify-center hover:bg-[#f2e7d3] transition-colors duration-200 focus:outline-none cursor-pointer"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-arrow-left-icon lucide-arrow-left"
+        >
+          <path d="m12 19-7-7 7-7" />
+          <path d="M19 12H5" />
+        </svg>
+      </button>
+      </a>
+      <span
+        class="text-[20px] md:text-[24px] lg:text-[28px] font-extrabold whitespace-nowrap"
+      >
+        JAGUAR LOUNGE
+      </span>
+      <!-- language choice -->
+      <div class="relative inline-block">
+        <!-- Sol tərəfdəki yer kürəsi ikonu (fa-globe) -->
+        <!-- Seçim menyusu -->
+        <select
+          class="appearance-none bg-[#f9f3e7] text-[#3a513e] font-medium text-sm pl-3 pr-[22px] py-2 rounded-full border border-[#cac2a7]/40 focus:outline-none cursor-pointer"
+        >
+          <option value="az">AZ</option>
+          <option value="en">EN</option>
+          <option value="ru">RU</option>
+        </select>
+
+        <div
+          class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 text-[#3a513e]"
+        >
+          <i class="fa-solid fa-chevron-down text-xs"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- food video player -->
+    <div
+      class="container flex flex-row justify-between mx-auto pb-2 max-w-[550px] px-2 lg:px-0 md:max-w-[720px] lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl items-center text-[#3a513e]"
+    >
+      <div
+        class="w-full aspect-video rounded-[25px] relative overflow-hidden flex items-center justify-center group cursor-pointer"
+        id="videoWrapper"
+      >
+        <video
+          id="heroVideo"
+          class="w-full h-full object-cover"
+          playsinline
+          loop
+          muted
+          preload="auto"
+        >
+          <!-- video unvanin sonuna resmin gorunmesi ucun #t=0.001 yerlesdirin -->
+          <source src="./video/hero_3.mp4#t=0.001" type="video/mp4" />
+        </video>
+
+        <!-- Mərkəzdəki Play Overlay -->
+        <div
+          id="videoOverlay"
+          class="absolute inset-0 bg-black/10 flex flex-col items-center justify-center gap-2 transition-all duration-300"
+        >
+          <div
+            class="w-14 h-14 md:w-16 md:h-16 bg-white/80 backdrop-blur-md text-[#3a513e] rounded-full flex items-center justify-center shadow-lg"
+          >
+            <i class="fa-solid fa-play text-xl md:text-2xl ml-1"></i>
+          </div>
+          <div
+            class="bg-black/40 backdrop-blur-md text-white text-xs md:text-sm px-4 py-1.5 rounded-full font-light tracking-wide"
+          >
+            Videoya bax
+          </div>
+        </div>
+
+        <!-- Sağ aşağıda: Tam Ekran və Çevirmə Düyməsi -->
+        <button
+          id="fullscreenBtn"
+          class="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer"
+        >
+          <i class="fa-solid fa-expand text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="container mx-auto px-2 lg:px-0 max-w-[550px] md:max-w-[720px] lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]"
+    >
+      <div class="flex flex-col justify-between md:justify-start gap-1">
+        <h2
+          class="text-2xl md:text-3xl font-semibold font-serif whitespace-nowrap"
+        >
+          Toyuq salatı
+        </h2>
+        <p class="text-sm">Lorem ipsum dolar sit amet dolar sit amet</p>
+        <div class="flex flex-row items-center justify-between">
+          <div
+            class="text-[30px] md:text-[28px] lg:text-[34px] my-2 font-semibold text-[#3a513e]"
+          >
+            15 <span>₼</span>
+          </div>
+        </div>
+        <h2 class="flex flex-row items-center mt-3 gap-2 text-[30px]">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-utensils-icon lucide-utensils w-[1em] h-[1em]"
+          >
+            <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" />
+            <path d="M7 2v20" />
+            <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
+          </svg>
+          <span class="font-serif text-[24px]">Tərkibi</span>
+        </h2>
+        <div
+          class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"
+        >
+          <!-- Toyuq filesi -->
+          <div
+            class="bg-white border border-[#3a513e]/20 rounded-[20px] sm:rounded-[25px] p-3 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/chicken-leg.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/chicken-leg.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Toyuq filesi</span
+            >
+          </div>
+
+          <!-- Avokado -->
+          <div
+            class="bg-white border border-[#3a513e]/20 rounded-[20px] sm:rounded-[25px] p-3 sm:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/avocado.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/avocado.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Avokado</span
+            >
+          </div>
+
+          <!-- Pomidor -->
+          <div
+            class="bg-white border border-[#3a513e]/20 rounded-[20px] sm:rounded-[25px] p-3 sm:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/tomato.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/tomato.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Pomidor</span
+            >
+          </div>
+
+          <!-- Xiyar -->
+          <div
+            class="bg-white border border-[#3a513e]/20 rounded-[20px] sm:rounded-[25px] p-3 sm:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/cucumber.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/cucumber.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Xiyar</span
+            >
+          </div>
+
+          <!-- Qarışıq göyərti -->
+          <div
+            class="bg-white border border-[#3a513e]/20 rounded-[20px] sm:rounded-[25px] p-3 sm:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/salad.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/salad.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Qarışıq göyərti</span
+            >
+          </div>
+
+          <!-- Zeytun yağı -->
+          <div
+            class="bg-white border border-[#3a513e]/20 rounded-[20px] sm:rounded-[25px] p-3 sm:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/olive-oil-jar.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/olive-oil-jar.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Zeytun yağı</span
+            >
+          </div>
+        </div>
+        <h2 class="flex mt-6 flex-row items-center gap-2 text-[30px] text-[#3a513e]">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-[1em] h-[1em]"
+          >
+            <path
+              d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"
+            />
+            <path d="m8.5 8.5 7 7" />
+          </svg>
+          <span class="font-serif text-[24px]">Allergenler</span>
+        </h2>
+
+        <div class="flex flex-row gap-3 sm:gap-4">
+          <!-- Toyuq filesi -->
+          <div
+            class="bg-white border border-[#a26246] rounded-[20px] sm:rounded-[25px] p-3 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+          <!-- IKONLAR svgrepo.com dan tapila biler -->
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/chicken-leg.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/chicken-leg.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Toyuq filesi</span
+            >
+          </div>
+
+          <!-- Avokado -->
+          <div
+            class="bg-white border border-[#a26246] rounded-[20px] sm:rounded-[25px] p-3 sm:p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-300"
+          >
+            <div
+              class="w-6 h-6 sm:w-7 sm:h-7 bg-[#3a513e] shrink-0 [mask-image:url('./img/avocado.svg')] [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-image:url('./img/avocado.svg')] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+            ></div>
+            <span
+              class="text-[#3a513e] text-sm sm:text-base font-medium truncate"
+              >Avokado</span
+            >
+          </div>
+        </div>
+
+<div class="flex mt-6 my-2 flex-row border-2 border-[#ece6dd] p-3 sm:p-4 bg-white rounded-[20px] items-center justify-around">
+  
+  <span class="flex flex-1 flex-row items-center justify-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame bg-[#f0eee5] rounded-full p-2 w-10 h-10">
+      <path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4" />
+    </svg>
+    <span>320 kkal</span>
+  </span>
+
+  <!-- Mobilde gizli, böyük ekranlarda görünən xətt 1 -->
+  <div class="hidden sm:block w-[1px] h-6 bg-[#ece6dd] shrink-0"></div>
+
+  <span class="flex flex-1 flex-row items-center justify-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock bg-[#f0eee5] rounded-full p-2 w-10 h-10">
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 6v6l4 2" />
+    </svg>
+    <span>15 dəq</span>
+  </span>
+
+  <!-- Mobilde gizli, böyük ekranlarda görünən xətt 2 -->
+  <div class="hidden sm:block w-[1px] h-6 bg-[#ece6dd] shrink-0"></div>
+
+  <span class="flex flex-1 flex-row items-center justify-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-weight-tilde-icon lucide-weight-tilde bg-[#f0eee5] rounded-full p-2 w-10 h-10">
+      <path d="M6.5 8a2 2 0 0 0-1.906 1.46L2.1 18.5A2 2 0 0 0 4 21h16a2 2 0 0 0 1.925-2.54L19.4 9.5A2 2 0 0 0 17.48 8z" />
+      <path d="M7.999 15a2.5 2.5 0 0 1 4 0 2.5 2.5 0 0 0 4 0" />
+      <circle cx="12" cy="5" r="3" />
+    </svg>
+    <span>350 q</span>
+  </span>
+
+</div>
+      </div>
+      <div
+        class="flex mt-6 my-2 justify-between border-2 border-[#ece6dd] flex-row gap-2 items-center bg-[#f0ede3] rounded-[20px] p-3 sm:p-4"
+      >
+        <div class="flex flex-row items-center gap-2">
+          <i
+            class="fa-solid fa-circle-info bg-[#f0ede3] text-[#374427] rounded-full text-[24px] sm:text-[28px] md:text-[30px] lg:text-[36px]"
+          ></i>
+          <span class="font-serif text-base"
+            >Məhsul haqqında sualınız varsa, ofisianta müraciət edin.</span
+          >
+        </div>
+
+        <div
+          class="w-32 h-14 bg-[#374427]/40"
+          style="shrink no-repeat center / contain; -webkit-mask: url('./img/jaguar_logo.svg') no-repeat center / contain;"
+        ></div>
+      </div>
+    </div>
+
+    <script>
+      const wrapper = document.getElementById("videoWrapper");
+      const video = document.getElementById("heroVideo");
+      const overlay = document.getElementById("videoOverlay");
+      const fullscreenBtn = document.getElementById("fullscreenBtn");
+
+      // Videoya klikləyəndə Play / Pause
+      wrapper.addEventListener("click", function (e) {
+        // Əgər tam ekran düyməsinə basılıbsa, play/pause tetiklenməsin
+        if (e.target.closest("#fullscreenBtn")) return;
+
+        if (video.paused) {
+          video.play();
+          overlay.classList.add("!hidden");
+        } else {
+          video.pause();
+          overlay.classList.remove("!hidden");
+        }
+      });
+
+      // Sağ aşağıdakı düyməyə basanda Tam Ekran + Çevirmə (Rotate)
+      fullscreenBtn.addEventListener("click", async function (e) {
+        e.stopPropagation(); // Video play/pause klikini dayandırır
+
+        try {
+          if (!document.fullscreenElement) {
+            // Fullscreen-ə keçid
+            if (wrapper.requestFullscreen) {
+              await wrapper.requestFullscreen();
+            } else if (wrapper.webkitRequestFullscreen) {
+              /* Safari */
+              await wrapper.webkitRequestFullscreen();
+            }
+
+            // Mobil cihazlarda ekranı üfüqi (landscape) rejminə çeviririk
+            if (screen.orientation && screen.orientation.lock) {
+              screen.orientation.lock("landscape").catch(() => {});
+            }
+          } else {
+            // Fullscreen-dən çıxış
+            if (document.exitFullscreen) {
+              await document.exitFullscreen();
+            }
+            if (screen.orientation && screen.orientation.unlock) {
+              screen.orientation.unlock();
+            }
+          }
+        } catch (err) {
+          console.log("Tam ekran xətası:", err);
+        }
+      });
+    </script>
+
+    <script>
+      const wrapper = document.getElementById("videoWrapper");
+      const video = document.getElementById("heroVideo");
+      const overlay = document.getElementById("videoOverlay");
+
+      wrapper.addEventListener("click", function () {
+        if (video.paused) {
+          video.play();
+          // Oynadıqda overlay-i və ikonu tamamilə gizlədirik
+          overlay.classList.add("!hidden");
+        } else {
+          video.pause();
+          // Pauzada ikonu yenidən göstəririk
+          overlay.classList.remove("!hidden");
+        }
+      });
+    </script>
+
+    <script>
+      function toggleVideo() {
+        const video = document.getElementById("heroVideo");
+        const controls = document.getElementById("videoControls");
+        const playBtn = document.getElementById("playBtn");
+
+        video.muted = true;
+
+        if (video.paused) {
+          video.play().then(() => {
+            // Düyməni və overlay-i tamamilə itiririk
+            controls.classList.add("opacity-0", "pointer-events-none");
+            playBtn.classList.add("hidden"); // Düymə ikonunu tamamilə silir
+          });
+        } else {
+          video.pause();
+          // Pauza verildikdə ikon geri qayıdır
+          controls.classList.remove("opacity-0", "pointer-events-none");
+          playBtn.classList.remove("hidden");
+        }
+      }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
