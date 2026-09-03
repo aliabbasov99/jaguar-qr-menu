@@ -285,7 +285,7 @@ export default function Home() {
                       </p>
                     </div>
                     <div className="text-[20px] md:text-[24px] lg:text-[24px] mt-2 font-medium text-[#3a513e]">
-                      15 <span>₼</span>
+                      {t?.mPrice} <span>₼</span>
                     </div>
                   </div>
                 </div>
