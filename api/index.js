@@ -1,27 +1,32 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// Faylların tam yolları (data/products.json və data/test.json)
-const filePath = path.join(__dirname, 'data', 'products.json');
-const filePathTest = path.join(__dirname, 'data', 'test.json');
+// 1. MongoDB-yə qoşulma
+const mongoURI = process.env.MONGO_DB_URL;
 
-// Lokal faylı oxumaq üçün köməkçi funksiya
-const getLocalData = () => {
-  if (!fs.existsSync(filePath)) {
-    return null;
-  }
-  const fileData = fs.readFileSync(filePath, 'utf-8');
-  return fileData ? JSON.parse(fileData) : null;
-};
+mongoose.connect(mongoURI)
+  .then(() => console.log('MongoDB-yə uğurla qoşuldu'))
+  .catch((err) => console.error('MongoDB qoşulma xətası:', err));
 
+// 2. Mongoose Modellərinin təyini
+
+// Product Sxemi (Promar API-dən gələn datanı saxlayacaq)
+const ProductSchema = new mongoose.Schema({}, { strict: false });
+const Product = mongoose.model('Product', ProductSchema);
+
+// Test Data Sxemi (POST sorğuları ilə gələn datanı saxlayacaq)
+const TestDataSchema = new mongoose.Schema({}, { strict: false });
+const TestData = mongoose.model('TestData', TestDataSchema);
+
+// GET /api/data endpoint-i
 app.get('/api/data', async (req, res) => {
   try {
     // 1. Promar API-yə sorğu göndəririk
@@ -36,73 +41,72 @@ app.get('/api/data', async (req, res) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 5000 // İsteğe bağlı: Sorğunun ilişib qalmaması üçün taymout (ms)
+        timeout: 5000
       }
     );
 
     const apiData = response.data;
-    const localData = getLocalData();
 
-    // 2. Gələn cavabı mövcud faylla müqayisə edirik
-    if (JSON.stringify(apiData) !== JSON.stringify(localData)) {
-      // Əgər fərqlidirsə, products.json faylına yazırıq
-      fs.writeFileSync(filePath, JSON.stringify(apiData, null, 2), 'utf-8');
+    // API-dən datanın massiv və ya obyekt gəldiyini nəzərə alaraq baza ilə müqayisə edirik
+    const dbData = await Product.find({}, { _id: 0, __v: 0 }).lean();
+
+    // Datanı müqayisə etmək üçün JSON formatına çeviririk
+    const apiDataNormalized = Array.isArray(apiData) ? apiData : [apiData];
+
+    if (JSON.stringify(apiDataNormalized) !== JSON.stringify(dbData)) {
+      // Data fərqlidirsə, köhnələri silib yenilərini bazaya yazırıq
+      await Product.deleteMany({});
+      if (Array.isArray(apiData)) {
+        await Product.insertMany(apiData);
+      } else {
+        await Product.create(apiData);
+      }
     }
 
-    // Əsas cavabı qaytarırıq
     res.json(apiData);
 
   } catch (error) {
-    console.error('API Xətası, lokal fayldan oxunur:', error.message);
+    console.error('API Xətası, MongoDB-dən oxunur:', error.message);
 
-    // 3. API-dən cavab gəlmədikdə / xəta olduqda faylı oxuyub cavab veririk
+    // 2. API işləmədikdə MongoDB-dən məlumatı götürürük
     try {
-      const localData = getLocalData();
-      if (localData) {
-        return res.json(localData);
+      const dbData = await Product.find({}, { _id: 0, __v: 0 }).lean();
+      
+      if (dbData && dbData.length > 0) {
+        return res.json(dbData);
       }
       
-      res.status(500).json({ error: 'Nə API-dən cavab gəldi, nə də lokal faylda data var.' });
-    } catch (fsError) {
-      res.status(500).json({ error: 'Lokal fayl oxunarkən xəta baş verdi.' });
+      res.status(500).json({ error: 'Nə API-dən cavab gəldi, nə də MongoDB-də data var.' });
+    } catch (dbError) {
+      res.status(500).json({ error: 'MongoDB-dən data oxunarkən xəta baş verdi.' });
     }
   }
 });
 
-// test.json-u oxuyan, gələn JSON-u siyahıya əlavə edib yazan və qaytaran POST endpoint-i
-app.post('/api/add-data', (req, res) => {
+// POST /api/add-data endpoint-i
+app.post('/api/add-data', async (req, res) => {
   try {
     const incomingData = req.body;
 
-    // Göndərilən məlumatın boş olub-olmadığını yoxlayırıq
-    if (!incomingData || Object.keys(incomingData).length === 0) {
+    if (!incomingData || (Array.isArray(incomingData) && incomingData.length === 0) || Object.keys(incomingData).length === 0) {
       return res.status(400).json({ error: 'Göndərilən JSON məlumatı boşdur.' });
     }
 
-    let testList = [];
-
-    // 1. test.json faylı var-yoxluğunu və məzmununu yoxlayırıq
-    if (fs.existsSync(filePathTest)) {
-      const fileData = fs.readFileSync(filePathTest, 'utf-8');
-      if (fileData) {
-        const parsedData = JSON.parse(fileData);
-        // Əgər fayldakı məlumat massivdirsə götürürük, deyilsə siyahıya çeviririk
-        testList = Array.isArray(parsedData) ? parsedData : [parsedData];
-      }
+    // Əgər incomingData massivdirsə insertMany, tək obyektdirsə create istifadə edirik
+    if (Array.isArray(incomingData)) {
+      await TestData.insertMany(incomingData);
+    } else {
+      await TestData.create(incomingData);
     }
 
-    // 2. Gələn yeni JSON məlumatını siyahının sonuna əlavə edirik
-    testList.push(incomingData);
+    // Yenilənmiş bütün siyahını MongoDB-dən oxuyub qaytarırıq
+    const allTestData = await TestData.find({}, { _id: 0, __v: 0 }).lean();
 
-    // 3. Yenilənmiş siyahını test.json faylına yazırıq
-    fs.writeFileSync(filePathTest, JSON.stringify(testList, null, 2), 'utf-8');
-
-    // 4. Yenilənmiş siyahını cavab olaraq qaytarırıq
-    res.json(testList);
+    res.json(allTestData);
 
   } catch (error) {
-    console.error('test.json əməliyyatı zamanı xəta:', error.message);
-    res.status(500).json({ error: 'Fayl oxunarkən və ya yazılarkən xəta baş verdi.' });
+    console.error('MongoDB əməliyyatı zamanı xəta:', error.message);
+    res.status(500).json({ error: 'Data MongoDB-yə yazılarkən xəta baş verdi.' });
   }
 });
 

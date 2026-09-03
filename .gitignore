@@ -1,0 +1,12 @@
+# Bütün subqovluqlardakı node_modules-ları ignore edir
+**/node_modules/
+
+# Bütün subqovluqlardakı .env fayllarını ignore edir
+**/.env
+**/.env.*
+!.env.example
+
+# Əlavə olaraq log və build faylları üçün
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
