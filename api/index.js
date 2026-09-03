@@ -26,60 +26,19 @@ const Product = mongoose.model('Product', ProductSchema);
 const TestDataSchema = new mongoose.Schema({}, { strict: false });
 const TestData = mongoose.model('TestData', TestDataSchema);
 
-// GET /api/data endpoint-i
+// GET /api/data endpoint-i (Birbaşa MongoDB-dən oxuyur)
 app.get('/api/data', async (req, res) => {
   try {
-    // 1. Promar API-yə sorğu göndəririk
-    const response = await axios.post(
-      'http://promar.az/REST/hs/Api',
-      {},
-      {
-        auth: {
-          username: 'admin',
-          password: ''
-        },
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 5000
-      }
-    );
-
-    const apiData = response.data;
-
-    // API-dən datanın massiv və ya obyekt gəldiyini nəzərə alaraq baza ilə müqayisə edirik
     const dbData = await Product.find({}, { _id: 0, __v: 0 }).lean();
 
-    // Datanı müqayisə etmək üçün JSON formatına çeviririk
-    const apiDataNormalized = Array.isArray(apiData) ? apiData : [apiData];
-
-    if (JSON.stringify(apiDataNormalized) !== JSON.stringify(dbData)) {
-      // Data fərqlidirsə, köhnələri silib yenilərini bazaya yazırıq
-      await Product.deleteMany({});
-      if (Array.isArray(apiData)) {
-        await Product.insertMany(apiData);
-      } else {
-        await Product.create(apiData);
-      }
+    if (!dbData || dbData.length === 0) {
+      return res.status(404).json({ message: 'MongoDB-də heç bir data tapılmadı.' });
     }
 
-    res.json(apiData);
-
+    res.json(dbData);
   } catch (error) {
-    console.error('API Xətası, MongoDB-dən oxunur:', error.message);
-
-    // 2. API işləmədikdə MongoDB-dən məlumatı götürürük
-    try {
-      const dbData = await Product.find({}, { _id: 0, __v: 0 }).lean();
-      
-      if (dbData && dbData.length > 0) {
-        return res.json(dbData);
-      }
-      
-      res.status(500).json({ error: 'Nə API-dən cavab gəldi, nə də MongoDB-də data var.' });
-    } catch (dbError) {
-      res.status(500).json({ error: 'MongoDB-dən data oxunarkən xəta baş verdi.' });
-    }
+    console.error('MongoDB-dən oxunarkən xəta:', error.message);
+    res.status(500).json({ error: 'MongoDB-dən data oxunarkən xəta baş verdi.' });
   }
 });
 

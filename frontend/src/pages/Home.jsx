@@ -66,7 +66,7 @@ export default function Home() {
 
   useEffect(() => {
     // Express backend'e istek atıyoruz
-    fetch("http://localhost:5000/api/data")
+    fetch("https://jaguar-qr-menu-api.vercel.app/api/data")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Ağ yanıtı başarısız");
