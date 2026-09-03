@@ -42,7 +42,7 @@ app.get('/api/data', async (req, res) => {
   }
 });
 
-// POST /api/add-data endpoint-i
+// POST /api/add-data endpoint-i (Artıq Product kolleksiyasına yazır)
 app.post('/api/add-data', async (req, res) => {
   try {
     const incomingData = req.body;
@@ -51,17 +51,17 @@ app.post('/api/add-data', async (req, res) => {
       return res.status(400).json({ error: 'Göndərilən JSON məlumatı boşdur.' });
     }
 
-    // Əgər incomingData massivdirsə insertMany, tək obyektdirsə create istifadə edirik
+    // Məlumatı Product kolleksiyasına əlavə edirik
     if (Array.isArray(incomingData)) {
-      await TestData.insertMany(incomingData);
+      await Product.insertMany(incomingData);
     } else {
-      await TestData.create(incomingData);
+      await Product.create(incomingData);
     }
 
-    // Yenilənmiş bütün siyahını MongoDB-dən oxuyub qaytarırıq
-    const allTestData = await TestData.find({}, { _id: 0, __v: 0 }).lean();
+    // Yenilənmiş bütün məhsul siyahısını MongoDB-dən oxuyub qaytarırıq
+    const allProducts = await Product.find({}, { _id: 0, __v: 0 }).lean();
 
-    res.json(allTestData);
+    res.json(allProducts);
 
   } catch (error) {
     console.error('MongoDB əməliyyatı zamanı xəta:', error.message);
