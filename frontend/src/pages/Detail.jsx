@@ -281,7 +281,7 @@ useEffect(() => {
 
           <div className="flex flex-row items-center justify-between">
             <div className="text-[30px] md:text-[28px] lg:text-[34px] my-2 font-semibold text-[#3a513e]">
-              {t?.mPrice} <span>₼</span>
+              {product.mPrice} <span>₼</span>
             </div>
           </div>
 
