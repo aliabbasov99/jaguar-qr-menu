@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ quiet: true });
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
@@ -51,14 +51,16 @@ app.post('/api/add-data', async (req, res) => {
       return res.status(400).json({ error: 'Göndərilən JSON məlumatı boşdur.' });
     }
 
-    // Məlumatı Product kolleksiyasına əlavə edirik
-    if (Array.isArray(incomingData)) {
-      await Product.insertMany(incomingData);
-    } else {
-      await Product.create(incomingData);
-    }
+    // 1. Kolleksiyadakı mövcut BÜTÜN məlumatları silirik
+    await Product.deleteMany({});
 
-    // Yenilənmiş bütün məhsul siyahısını MongoDB-dən oxuyub qaytarırıq
+    // 2. Göndərilən data obyektdirsə, onu massivə (array) çeviririk
+    const dataToInsert = Array.isArray(incomingData) ? incomingData : [incomingData];
+
+    // 3. Yeni məlumatları sıfırdan yazırıq
+    await Product.insertMany(dataToInsert);
+
+    // 4. Yenilənmiş bütün məhsul siyahısını MongoDB-dən oxuyub qaytarırıq
     const allProducts = await Product.find({}, { _id: 0, __v: 0 }).lean();
 
     res.json(allProducts);
