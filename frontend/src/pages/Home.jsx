@@ -281,7 +281,7 @@ export default function Home() {
                         {product.mName}
                       </h3>
                       <p className="text-black/60 text-xs sm:text-sm">
-                        {t.avocadoGreens}
+                        {t?.mSubName}
                       </p>
                     </div>
                     <div className="text-[20px] md:text-[24px] lg:text-[24px] mt-2 font-medium text-[#3a513e]">
