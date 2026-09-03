@@ -74,7 +74,6 @@ export default function Home() {
         return response.json();
       })
       .then((data) => {
-        console.log("Backendden gelen veri:", data);
         setData(data);
       })
       .catch((error) => {
