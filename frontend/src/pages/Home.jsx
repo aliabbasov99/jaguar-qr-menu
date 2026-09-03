@@ -259,39 +259,47 @@ export default function Home() {
       </div>
 
       {/* Məhsullar Siyahısı */}
-      <div className="container mx-auto py-4 px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]">
-        <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {data
-            ?.filter((product) => product.mGroup === activeGroup)
-            ?.map((product, index) => (
-              <Link key={product.mID} to={`./mehsul/${product.mID}`}>
-                <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col border border-gray-100">
-                  <div className="w-full aspect-4/3 overflow-hidden">
-                    <img
-                      src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c"
-                      alt="Toyuq salatı"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="px-4 py-2 flex flex-col justify-between flex-1">
-                    <div>
-                      {/* JSON Məlumatına toxunulmur */}
-                      <h3 className="text-base sm:text-xl font-semibold text-[#3a513e] leading-tight">
-                        {product.mName}
-                      </h3>
-                      <p className="text-black/60 text-xs sm:text-sm">
-                        {product.mSubName}
-                      </p>
-                    </div>
-                    <div className="text-[20px] md:text-[24px] lg:text-[24px] mt-2 font-medium text-[#3a513e]">
-                      {product.mPrice} <span>₼</span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-        </div>
-      </div>
+{/* Məhsullar Siyahısı */}
+<div className="container mx-auto py-4 px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]">
+  <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 items-stretch">
+    {data
+      ?.filter((product) => product.mGroup === activeGroup)
+      ?.map((product, index) => (
+        <Link key={product.mID} to={`./mehsul/${product.mID}`} className="h-full flex flex-col">
+          <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col border border-gray-100 h-full">
+            
+            {/* Şəkil */}
+            <div className="w-full aspect-4/3 overflow-hidden shrink-0">
+              <img
+                src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c"
+                alt={product.mName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+
+            {/* Məhsul Məlumatları */}
+            <div className="px-4 py-3 flex flex-col justify-between flex-1">
+              <div>
+                {/* line-clamp-2: Başlığı maks 2 sətir edir, nizamsız uzanmağı önləyir */}
+                <h3 className="text-sm sm:text-base font-semibold text-[#3a513e] leading-tight line-clamp-2">
+                  {product.mName}
+                </h3>
+                <p className="text-black/60 text-xs sm:text-sm line-clamp-1 mt-1">
+                  {product.mSubName}
+                </p>
+              </div>
+
+              {/* mt-auto: Qiyməti həmişə kartın alt hissəsinə yapışdırır */}
+              <div className="text-[18px] sm:text-[20px] md:text-[22px] font-medium text-[#3a513e] mt-auto pt-2">
+                {product.mPrice} <span>₼</span>
+              </div>
+            </div>
+
+          </div>
+        </Link>
+      ))}
+  </div>
+</div>
     </>
   );
 }
