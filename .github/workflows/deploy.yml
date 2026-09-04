@@ -1,0 +1,37 @@
+name: MERN Stack Auto Deploy
+
+on:
+  push:
+    branches:
+      - main # GitHub'da hangi branch'i kullanıyorsan (main veya master) onu yaz
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            # 1. Sunucudaki proje klasörüne gir
+            cd /var/www/qrmenujag
+
+            # 2. GitHub'daki en güncel kodları sunucuya çek
+            git pull origin main
+
+            # 3. Backend Güncelleme
+            cd api
+            npm install --production
+            pm2 restart backend-jag
+
+            # 4. Frontend Güncelleme (React / Vite)
+            cd ../frontend
+            npm install
+            npm run build
