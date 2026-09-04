@@ -108,7 +108,7 @@ const Detail = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/data')
+    fetch('http://16.171.199.156:5000/api/data')
       .then((response) => {
         if (!response.ok) throw new Error('Ağ yanıtı başarısız');
         return response.json();
