@@ -4,101 +4,54 @@ import heroImg from "../assets/img/hero.jpg";
 import divider from "../assets/img/divider.svg";
 import { Link } from "react-router-dom";
 
-// Statik mətnlərin çeviri sözlüyü
+// Statik mətnlərin və qrup adlarının çevirisi
 const translations = {
   az: {
     fresh: "Təzə",
     local: "Yerli",
     seasonal: "Mövsumi",
     everyday: "Hər gün",
-    popular: "Populyar",
-    qutabs: "Qutablar",
-    service: "Servislər",
-    coldDrinks: "Soyuq içkilər",
     selectedForYou: "Sizin üçün seçdik",
-    avocadoGreens: "Avokado və göyərti"
+
   },
   en: {
     fresh: "Fresh",
     local: "Local",
     seasonal: "Seasonal",
     everyday: "Every day",
-    popular: "Popular",
-    qutabs: "Qutabs",
-    service: "Services",
-    coldDrinks: "Cold drinks",
     selectedForYou: "Selected for you",
-    avocadoGreens: "Avocado and greens"
+    groups: {
+      MENYU: "Popular",
+      QUTABLAR: "Qutabs",
+      "SOYUQ İÇKİLƏR": "Cold Drinks",
+      SERVİSLƏR: "Services"
+    }
   },
   ru: {
     fresh: "Свежий",
     local: "Местный",
     seasonal: "Сезонный",
     everyday: "Каждый день",
-    popular: "Популярное",
-    qutabs: "Кутабы",
-    service: "Услуги",
-    coldDrinks: "Холодные напитки",
     selectedForYou: "Выбрано для вас",
-    avocadoGreens: "Авокадо и зелень"
+    groups: {
+      MENYU: "Популярное",
+      QUTABLAR: "Кутабы",
+      "SOYUQ İÇKİLƏR": "Холодные напитки",
+      SERVİSLƏR: "Услуги"
+    }
   }
 };
 
 export default function Home() {
-  const [activeGroup, setActiveGroup] = useState("MENYU");
+  const [activeGroup, setActiveGroup] = useState("");
   const [data, setData] = useState(null);
 
-  // 1. Dili localStorage-dən oxuyuruq
+  // Dili localStorage-dən oxuyuruq
   const [lang, setLang] = useState(() => {
     return localStorage.getItem("appLang") || "az";
   });
 
-  const t = translations[lang];
-
-  // Qrup siyahısı və mGroup dəyərlərinin xəritələnməsi
-  const groups = [
-    {
-      id: "MENYU",
-      label: t.popular,
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
-        </svg>
-      )
-    },
-    {
-      id: "QUTABLAR",
-      label: t.qutabs,
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M5.364 3.848C4 6 3 9.652 3 12.652V19a2 2 0 002 2h14a2 2 0 002-2v-5c0-2.334-1.816-4.668-2.622-7.002" />
-          <path d="M7 3h11.379a2 2 0 011.789 1.106l.723 1.447A1 1 0 0119.997 7h-8.525a2 2 0 01-1.789-1.106L8.79 4.105a2 2 0 10-3.579 1.789l2.261 4.522A5 5 0 018 12.652V21" />
-        </svg>
-      )
-    },
-    {
-      id: "SOYUQ İÇKİLƏR",
-      label: t.coldDrinks,
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="m6 8 1.75 12.28a2 2 0 0 0 2 1.72h4.54a2 2 0 0 0 2-1.72L18 8" />
-          <path d="M5 8h14" />
-          <path d="M7 15a6.47 6.47 0 0 1 5 0 6.47 6.47 0 0 0 5 0" />
-          <path d="m12 8 1-6h2" />
-        </svg>
-      )
-    },
-    {
-      id: "SERVİSLƏR", // Backend-də bu qrup necə gedirsə (məsələn: "SERVİSLƏR" və ya "Услуги") id-ni onunla əvəz edin
-      label: t.service,
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
-          <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        </svg>
-      )
-    }
-  ];
+  const t = translations[lang] || translations.az;
 
   const handleLanguageChange = (e) => {
     const selectedLang = e.target.value;
@@ -107,14 +60,25 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("https://jaguar-qr-menu-api.vercel.app/api/data")
+    fetch("http://localhost:5000/api/data")
       .then((response) => {
         if (!response.ok) throw new Error("Ağ yanıtı başarısız");
         return response.json();
       })
-      .then((data) => setData(data))
+      .then((data) => {
+        setData(data);
+        // İlk gələn məhsulun mGroup-unu aktiv tab kimi təyin edirik
+        if (data && data.length > 0) {
+          setActiveGroup(data[0].mGroup);
+        }
+      })
       .catch((error) => console.error("Veri çekme hatası:", error));
   }, []);
+
+  // API-dən gələn məhsullardakı təkrarolunmaz (unique) mGroup siyahısını alırıq
+  const availableGroups = data
+    ? Array.from(new Set(data.map((item) => item.mGroup))).filter(Boolean)
+    : [];
 
   return (
     <>
@@ -162,21 +126,26 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Kateqoriya Düymələri (Dinamik Loop) */}
-      <div className="container mx-auto px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl">
-        <div className="flex items-center justify-between md:justify-start overflow-x-auto gap-2 whitespace-nowrap no-scrollbar py-2">
-          {groups.map((group) => (
+      {/* Kateqoriya Düymələri Slider/Tab (Dinamik mGroup-lara görə) */}
+      <div className="container mx-auto px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mt-2">
+        <div className="flex items-center justify-start overflow-x-auto gap-2 whitespace-nowrap no-scrollbar py-2">
+          {availableGroups.map((group) => (
             <button
-              key={group.id}
-              onClick={() => setActiveGroup(group.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm shrink-0 transition-all ${
-                activeGroup === group.id
+              key={group}
+              onClick={() => setActiveGroup(group)}
+              className={`flex items-center cursor-pointer gap-2 px-4 py-2 rounded-full text-sm shrink-0 transition-all ${
+                activeGroup === group
                   ? "bg-[#3a513e] text-white shadow-sm"
                   : "bg-[#f9f3e7] text-[#3a513e] border border-[#cac2a7]/40 hover:bg-[#f5ebd7]"
               }`}
             >
-              {group.icon}
-              <span>{group.label}</span>
+              {/* Utensils SVG İkonu */}
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                <path d="M7 2v20"/>
+                <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+              </svg>
+              <span>{t.groups?.[group] || group}</span>
             </button>
           ))}
         </div>
@@ -194,7 +163,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Məhsullar Siyahısı */}
+      {/* Məhsullar Siyahısı (Seçilmiş activeGroup-a görə süzülür) */}
       <div className="container mx-auto py-4 px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]">
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 items-stretch">
           {data

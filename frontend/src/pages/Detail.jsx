@@ -108,7 +108,7 @@ const Detail = () => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    fetch('https://jaguar-qr-menu-api.vercel.app/api/data')
+    fetch('http://localhost:5000/api/data')
       .then((response) => {
         if (!response.ok) throw new Error('Ağ yanıtı başarısız');
         return response.json();
