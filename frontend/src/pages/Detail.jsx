@@ -3,26 +3,20 @@ import { Link, useParams } from 'react-router-dom';
 import foodVideoExample from "../assets/video/hero_3.mp4";
 import jaguarLogo from "../assets/img/jaguar_logo.svg";
 
-
 const translateText = async (text, targetLang) => {
-  
   if (!text) return "";
   try {
     const response = await fetch(
       `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`
     );
     const data = await response.json();
-    // Google Translate cavab strukturundan tərcümə edilmiş mətni birləşdiririk
     return data[0].map((item) => item[0]).join("");
   } catch (error) {
     console.error("Tərcümə xətası:", error);
-    return text; // Xəta olarsa orijinal mətni qaytarır
+    return text;
   }
 };
 
-
-
-// Hardcoded mətnlər üçün tərcümə obyekti
 const translations = {
   az: {
     watchVideo: "Videoya bax",
@@ -78,19 +72,12 @@ const translations = {
 };
 
 const Detail = () => {
-
-
-
-  // 1. Home-da seçilən dili yaddaşdan oxuyur
   const [lang, setLang] = useState(() => {
     return localStorage.getItem("appLang") || "az";
   });
 
   const t = translations[lang];
 
-
-  
-  // 2. Əgər istifadəçi Detail səhifəsində də dili dəyişərsə yaddaş yenilənir
   const handleLanguageChange = (e) => {
     const selectedLang = e.target.value;
     setLang(selectedLang);
@@ -100,27 +87,24 @@ const Detail = () => {
   const { id } = useParams();
   const [data, setData] = useState(null);
 
-
-
-
   const videoRef = useRef(null);
   const wrapperRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Cloudflare Worker API-dən datanı çəkirik
   useEffect(() => {
-    fetch('http://16.171.199.156:5000/api/data')
+    fetch('https://api.aliabbasov9282.workers.dev/api/data')
       .then((response) => {
-        if (!response.ok) throw new Error('Ağ yanıtı başarısız');
+        if (!response.ok) throw new Error('Şəbəkə xətası baş verdi');
         return response.json();
       })
       .then((data) => {
         setData(data);
       })
       .catch((error) => {
-        console.error('Veri çekme hatası:', error);
+        console.error('Data çəkilərkən xəta:', error);
       });
   }, []);
-  
 
   const product = data?.find((item) => String(item.mID) === String(id));
 
@@ -135,14 +119,13 @@ const Detail = () => {
     }
   };
 
-const [translatedDesc, setTranslatedDesc] = useState(""); // Tərcümə olunmuş açıqlama
-const [isTranslating, setIsTranslating] = useState(false);
-    const rawDescription = product?.mDescription || "Cypriani Sezar Salatı – Təzə romana kahısı, parmesan pendiri, ev üsulu krutonlar və xüsusi Cypriani sousu ilə hazırlanan klassik Sezar salatının ən zərif təqdimatı.";
+  const [translatedDesc, setTranslatedDesc] = useState("");
+  const [isTranslating, setIsTranslating] = useState(false);
+  const rawDescription = product?.mDescription || "Cypriani Sezar Salatı – Təzə romana kahısı, parmesan pendiri, ev üsulu krutonlar və xüsusi Cypriani sousu ilə hazırlanan klassik Sezar salatının ən zərif təqdimatı.";
 
-useEffect(() => {
+  useEffect(() => {
     if (!rawDescription) return;
 
-    // Azərbaycan dili seçiləndə orijinal mətni göstər
     if (lang === 'az') {
       setTranslatedDesc(rawDescription);
       return;
@@ -153,7 +136,6 @@ useEffect(() => {
       .then((res) => setTranslatedDesc(res))
       .finally(() => setIsTranslating(false));
   }, [lang, rawDescription]);
-  
 
   const toggleFullscreen = async (e) => {
     e.stopPropagation();
@@ -276,7 +258,7 @@ useEffect(() => {
           </h2>
 
           <p className="text-sm">
-{isTranslating ? "Tərcümə olunur..." : translatedDesc}
+            {isTranslating ? "Tərcümə olunur..." : translatedDesc}
           </p>
 
           <div className="flex flex-row items-center justify-between">

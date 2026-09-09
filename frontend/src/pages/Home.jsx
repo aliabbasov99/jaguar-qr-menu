@@ -12,7 +12,6 @@ const translations = {
     seasonal: "Mövsumi",
     everyday: "Hər gün",
     selectedForYou: "Sizin üçün seçdik",
-
   },
   en: {
     fresh: "Fresh",
@@ -60,9 +59,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("http://16.171.199.156:5000/api/data")
+    fetch("https://api.aliabbasov9282.workers.dev/api/data")
       .then((response) => {
-        if (!response.ok) throw new Error("Ağ yanıtı başarısız");
+        if (!response.ok) throw new Error("Şəbəkə xətası baş verdi");
         return response.json();
       })
       .then((data) => {
@@ -72,7 +71,7 @@ export default function Home() {
           setActiveGroup(data[0].mGroup);
         }
       })
-      .catch((error) => console.error("Veri çekme hatası:", error));
+      .catch((error) => console.error("Data çəkilərkən xəta:", error));
   }, []);
 
   // API-dən gələn məhsullardakı təkrarolunmaz (unique) mGroup siyahısını alırıq
