@@ -59,7 +59,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("https://api.aliabbasov9282.workers.dev/api/data")
+    fetch("https://api.promar.workers.dev/api/data")
       .then((response) => {
         if (!response.ok) throw new Error("Şəbəkə xətası baş verdi");
         return response.json();
