@@ -6,7 +6,7 @@ import noPhoto from "../assets/img/no_photo.jpeg";
 
 const translations = {
   az: {
-    all: "Hamısı",
+    all: "HAMISI",
     fresh: "Təzə",
     local: "Yerli",
     seasonal: "Mövsumi",
