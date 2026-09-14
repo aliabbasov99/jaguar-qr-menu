@@ -2,9 +2,8 @@ import logo from "../assets/img/logo.svg";
 import { useEffect, useState } from "react";
 import heroImg from "../assets/img/hero.jpg";
 import divider from "../assets/img/divider.svg";
-import noPhoto from "../assets/img/no_photo.jpeg"
+import noPhoto from "../assets/img/no_photo.jpeg";
 
-// Statik mətnlərin və qrup adlarının çevirisi
 const translations = {
   az: {
     all: "Hamısı",
@@ -44,17 +43,14 @@ const translations = {
   }
 };
 
-// Cloudflare R2 Pulsuz Public URL-iniz
 const R2_PUBLIC_URL = "https://pub-28aba3035f5e4b4b9d2246f55c816246.r2.dev";
-
-// Yoxlanılacaq şəkil formatlarının siyahısı
-const EXTENSIONS = ["jpg", "png", "webp", "jpeg", "JPG", "PNG", "WEBP"];
+const API_BASE_URL = "https://api.promar.workers.dev";
 
 export default function Home() {
   const [activeGroup, setActiveGroup] = useState("ALL");
   const [data, setData] = useState(null);
+  const [imagesMap, setImagesMap] = useState({});
 
-  // Dili localStorage-dən oxuyuruq
   const [lang, setLang] = useState(() => {
     return localStorage.getItem("appLang") || "az";
   });
@@ -68,39 +64,47 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetch("https://api.promar.workers.dev/api/data")
-      .then((response) => {
-        if (!response.ok) throw new Error("Şəbəkə xətası baş verdi");
-        return response.json();
+    // Məlumatları və şəkillərin siyahısını paralel olaraq çəkirik
+    Promise.all([
+      fetch(`${API_BASE_URL}/api/data`).then((res) => res.json()),
+      fetch(`${API_BASE_URL}/api/get-img`).then((res) => res.json())
+    ])
+      .then(([menuData, imgData]) => {
+        setData(menuData);
+
+        // API-dən gələn faylları mID -> URL xəritəsinə çeviririk
+        if (imgData && imgData.files) {
+          const map = {};
+          imgData.files.forEach((fileKey) => {
+            const fileName = fileKey.replace("images/", "");
+            const lastDotIndex = fileName.lastIndexOf(".");
+            const baseName = lastDotIndex !== -1 ? fileName.substring(0, lastDotIndex) : fileName;
+            
+            map[baseName] = `${R2_PUBLIC_URL}/${fileKey}`;
+          });
+          setImagesMap(map);
+        }
       })
-      .then((data) => {
-        setData(data);
-      })
-      .catch((error) => console.error("Data çəkilərkən xəta:", error));
+      .catch((error) => console.error("Məlumat çəkilərkən xəta:", error));
   }, []);
-
-  // Formatları növbə ilə yoxlayan funksiya
-  const handleImageError = (e, mID) => {
-    const currentSrc = e.target.src;
-    let nextIndex = 0;
-
-    for (let i = 0; i < EXTENSIONS.length; i++) {
-      if (currentSrc.endsWith(`.${EXTENSIONS[i]}`)) {
-        nextIndex = i + 1;
-        break;
-      }
-    }
-
-    if (nextIndex < EXTENSIONS.length) {
-      e.target.src = `${R2_PUBLIC_URL}/images/${mID}.${EXTENSIONS[nextIndex]}`;
-    } else {
-      e.target.onerror = null;
-      e.target.src = noPhoto;
-    }
-  };
 
   const availableGroups = data
     ? ["ALL", ...Array.from(new Set(data.map((item) => item.mGroup))).filter(Boolean)]
+    : [];
+
+  // Kateqoriya başlıqlarını süzgəcdən keçirib yalnız həqiqi məhsulları saxlayırıq
+  const filteredProducts = data
+    ? data.filter((product) => {
+        // Kateqoriya başlığı olub-olmadığını yoxlayırıq:
+        const isGroupHeader =
+          product.isGroup === true ||
+          product.isGroup === "true" ||
+          (product.mName === product.mGroup && (!product.mPrice || Number(product.mPrice) === 0));
+
+        if (isGroupHeader) return false;
+
+        return activeGroup === "ALL" || product.mGroup === activeGroup;
+      })
     : [];
 
   return (
@@ -190,17 +194,21 @@ export default function Home() {
       {/* Məhsullar Siyahısı */}
       <div className="container mx-auto py-4 px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]">
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 items-stretch">
-          {data
-            ?.filter((product) => activeGroup === "ALL" || product.mGroup === activeGroup)
-            ?.map((product) => (
+          {filteredProducts.map((product) => {
+            const imgSrc = imagesMap[product.mID] || noPhoto;
+
+            return (
               <div key={product.mID} className="h-full flex flex-col">
-                <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col  h-full">
+                <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
                   
-                  {/* Şəkil konteyneri: border-b istifadə olundu */}
+                  {/* Şəkil konteyneri */}
                   <div className="w-full aspect-[4/3] relative overflow-hidden shrink-0 bg-gray-50 border-b border-[#3a513e]">
                     <img 
-                      src={`${R2_PUBLIC_URL}/images/${product.mID}.${EXTENSIONS[0]}`} 
-                      onError={(e) => handleImageError(e, product.mID)}
+                      src={imgSrc} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = noPhoto;
+                      }}
                       alt={product.mName} 
                       className="absolute inset-0 w-full h-full object-fill" 
                     />
@@ -221,7 +229,8 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+          })}
         </div>
       </div>
     </>
