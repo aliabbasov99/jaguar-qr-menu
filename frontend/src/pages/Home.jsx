@@ -2,7 +2,6 @@ import logo from "../assets/img/logo.svg";
 import { useEffect, useState } from "react";
 import heroImg from "../assets/img/hero.jpg";
 import divider from "../assets/img/divider.svg";
-import { Link } from "react-router-dom";
 
 // Statik mətnlərin və qrup adlarının çevirisi
 const translations = {
@@ -128,27 +127,29 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Kateqoriya Düymələri Slider/Tab */}
-      <div className="container mx-auto px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mt-2">
-        <div className="flex items-center justify-start overflow-x-auto gap-2 whitespace-nowrap no-scrollbar py-2">
-          {availableGroups.map((group) => (
-            <button
-              key={group}
-              onClick={() => setActiveGroup(group)}
-              className={`flex items-center cursor-pointer gap-2 px-4 py-2 rounded-full text-sm shrink-0 transition-all ${
-                activeGroup === group
-                  ? "bg-[#3a513e] text-white shadow-sm"
-                  : "bg-[#f9f3e7] text-[#3a513e] border border-[#cac2a7]/40 hover:bg-[#f5ebd7]"
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-                <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
-                <path d="M7 2v20"/>
-                <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
-              </svg>
-              <span>{t.groups?.[group] || group}</span>
-            </button>
-          ))}
+      {/* Kateqoriya Düymələri Slider/Tab (Sticky Yuxarı Sabitlənmə) */}
+      <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md py-2 shadow-xs transition-all">
+        <div className="container mx-auto px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl">
+          <div className="flex items-center justify-start overflow-x-auto gap-2 whitespace-nowrap no-scrollbar">
+            {availableGroups.map((group) => (
+              <button
+                key={group}
+                onClick={() => setActiveGroup(group)}
+                className={`flex items-center cursor-pointer gap-2 px-4 py-2 rounded-full text-sm shrink-0 transition-all ${
+                  activeGroup === group
+                    ? "bg-[#3a513e] text-white shadow-sm"
+                    : "bg-[#f9f3e7] text-[#3a513e] border border-[#cac2a7]/40 hover:bg-[#f5ebd7]"
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
+                  <path d="M7 2v20"/>
+                  <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
+                </svg>
+                <span>{t.groups?.[group] || group}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -170,7 +171,7 @@ export default function Home() {
           {data
             ?.filter((product) => product.mGroup === activeGroup)
             ?.map((product) => (
-              <Link key={product.mID} to={`./mehsul/${product.mID}`} className="h-full flex flex-col">
+              <div key={product.mID} className="h-full flex flex-col">
                 <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col border border-gray-100 h-full">
                   <div className="w-full aspect-4/3 overflow-hidden shrink-0">
                     {/* Dinamik R2 Şəkil Keçidi */}
@@ -187,7 +188,7 @@ export default function Home() {
                   </div>
                   <div className="px-4 py-3 flex flex-col justify-between flex-1">
                     <div>
-                      <h3 className="text-sm sm:text-base font-semibold text-[#3a513e] leading-tight line-clamp-2">
+                      <h3 className="text-sm sm:text-base font-[#3a513e] font-semibold leading-tight line-clamp-2">
                         {product.mName}
                       </h3>
                       <p className="text-black/60 text-xs sm:text-sm line-clamp-1 mt-1">
@@ -199,7 +200,7 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
         </div>
       </div>
