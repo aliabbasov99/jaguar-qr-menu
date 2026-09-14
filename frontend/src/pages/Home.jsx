@@ -175,7 +175,7 @@ export default function Home() {
                   <div className="w-full aspect-4/3 overflow-hidden shrink-0">
                     {/* Dinamik R2 Şəkil Keçidi */}
                     <img 
-                      src={`${R2_PUBLIC_URL}/images/${product.mID}.png`} 
+                      src={`${R2_PUBLIC_URL}/images/${product.mID}.jpg`} 
                       onError={(e) => {
                         // Əgər həmin mID ilə şəkil R2-də tapılmazsa, default şəkil göstərir
                         e.target.onerror = null; 
