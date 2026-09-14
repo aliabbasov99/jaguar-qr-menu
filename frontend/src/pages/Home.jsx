@@ -43,6 +43,9 @@ const translations = {
 // Cloudflare R2 Pulsuz Public URL-iniz
 const R2_PUBLIC_URL = "https://pub-28aba3035f5e4b4b9d2246f55c816246.r2.dev";
 
+// Yoxlanılacaq şəkil formatlarının siyahısı
+const EXTENSIONS = ["jpg", "png", "webp", "jpeg", "JPG", "PNG", "WEBP"];
+
 export default function Home() {
   const [activeGroup, setActiveGroup] = useState("");
   const [data, setData] = useState(null);
@@ -75,6 +78,26 @@ export default function Home() {
       })
       .catch((error) => console.error("Data çəkilərkən xəta:", error));
   }, []);
+
+  // Formatları növbə ilə yoxlayan funksiya
+  const handleImageError = (e, mID) => {
+    const currentSrc = e.target.src;
+    let nextIndex = 0;
+
+    for (let i = 0; i < EXTENSIONS.length; i++) {
+      if (currentSrc.endsWith(`.${EXTENSIONS[i]}`)) {
+        nextIndex = i + 1;
+        break;
+      }
+    }
+
+    if (nextIndex < EXTENSIONS.length) {
+      e.target.src = `${R2_PUBLIC_URL}/images/${mID}.${EXTENSIONS[nextIndex]}`;
+    } else {
+      e.target.onerror = null;
+      e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
+    }
+  };
 
   // API-dən gələn məhsullardakı təkrarolunmaz (unique) mGroup siyahısını alırıq
   const availableGroups = data
@@ -173,19 +196,17 @@ export default function Home() {
             ?.map((product) => (
               <div key={product.mID} className="h-full flex flex-col">
                 <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col border border-gray-100 h-full">
-                  <div className="w-full aspect-4/3 overflow-hidden shrink-0">
-                    {/* Dinamik R2 Şəkil Keçidi */}
-                    <img 
-                      src={`${R2_PUBLIC_URL}/images/${product.mID}.jpg`} 
-                      onError={(e) => {
-                        // Əgər həmin mID ilə şəkil R2-də tapılmazsa, default şəkil göstərir
-                        e.target.onerror = null; 
-                        e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
-                      }}
-                      alt={product.mName} 
-                      className="w-full h-full object-cover" 
-                    />
-                  </div>
+                  
+                  {/* Şəkil konteyneri sabit Aspect Ratio ilə sıxışdırılıb */}
+                <div className="w-full aspect-[4/3] relative overflow-hidden shrink-0 bg-gray-50">
+                  <img 
+                    src={`${R2_PUBLIC_URL}/images/${product.mID}.${EXTENSIONS[0]}`} 
+                    onError={(e) => handleImageError(e, product.mID)}
+                    alt={product.mName} 
+                    className="absolute inset-0 w-full h-full object-fill" 
+                  />
+                </div>
+
                   <div className="px-4 py-3 flex flex-col justify-between flex-1">
                     <div>
                       <h3 className="text-sm sm:text-base font-[#3a513e] font-semibold leading-tight line-clamp-2">
