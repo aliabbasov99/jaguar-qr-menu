@@ -90,8 +90,8 @@ const Detail = () => {
   const videoRef = useRef(null);
   const wrapperRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasVideoError, setHasVideoError] = useState(false);
 
-  // Cloudflare Worker API-dən datanı çəkirik
   useEffect(() => {
     fetch('https://api.promar.workers.dev/api/data')
       .then((response) => {
@@ -107,6 +107,9 @@ const Detail = () => {
   }, []);
 
   const product = data?.find((item) => String(item.mID) === String(id));
+
+  // Əgər API-dən mVideo gəlirsə onu götürür, yoxdursa null olur (və ya test üçün foodVideoExample)
+  const videoSrc = product?.mVideo || null;
 
   const togglePlay = () => {
     if (!videoRef.current) return;
@@ -212,43 +215,46 @@ const Detail = () => {
         </div>
       </div>
 
-      {/* Video Player */}
-      <div className="container flex flex-row justify-between mx-auto pb-2 max-w-[550px] px-2 lg:px-0 md:max-w-[720px] lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl items-center text-[#3a513e]">
-        <div
-          ref={wrapperRef}
-          onClick={togglePlay}
-          className="w-full aspect-video rounded-[25px] relative overflow-hidden flex items-center justify-center group cursor-pointer"
-        >
-          <video
-            ref={videoRef}
-            className="w-full h-full object-cover"
-            playsInline
-            loop
-            muted
-            preload="auto"
+      {/* Video Player - Yalnız video faylı və ya keçi mövcud olduqda göstərilir */}
+      {videoSrc && !hasVideoError && (
+        <div className="container flex flex-row justify-between mx-auto pb-2 max-w-[550px] px-2 lg:px-0 md:max-w-[720px] lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl items-center text-[#3a513e]">
+          <div
+            ref={wrapperRef}
+            onClick={togglePlay}
+            className="w-full aspect-video rounded-[25px] relative overflow-hidden flex items-center justify-center group cursor-pointer"
           >
-            <source src={`${foodVideoExample}#t=0.001`} type="video/mp4" />
-          </video>
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              playsInline
+              loop
+              muted
+              preload="auto"
+              onError={() => setHasVideoError(true)}
+            >
+              <source src={`${videoSrc}#t=0.001`} type="video/mp4" />
+            </video>
 
-          {!isPlaying && (
-            <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center gap-2 transition-all duration-300">
-              <div className="w-14 h-14 md:w-16 md:h-16 bg-white/80 backdrop-blur-md text-[#3a513e] rounded-full flex items-center justify-center shadow-lg">
-                <i className="fa-solid fa-play text-xl md:text-2xl ml-1" />
+            {!isPlaying && (
+              <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-center gap-2 transition-all duration-300">
+                <div className="w-14 h-14 md:w-16 md:h-16 bg-white/80 backdrop-blur-md text-[#3a513e] rounded-full flex items-center justify-center shadow-lg">
+                  <i className="fa-solid fa-play text-xl md:text-2xl ml-1" />
+                </div>
+                <div className="bg-black/40 backdrop-blur-md text-white text-xs md:text-sm px-4 py-1.5 rounded-full font-light tracking-wide">
+                  {t.watchVideo}
+                </div>
               </div>
-              <div className="bg-black/40 backdrop-blur-md text-white text-xs md:text-sm px-4 py-1.5 rounded-full font-light tracking-wide">
-                {t.watchVideo}
-              </div>
-            </div>
-          )}
+            )}
 
-          <button
-            onClick={toggleFullscreen}
-            className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer"
-          >
-            <i className="fa-solid fa-expand text-sm" />
-          </button>
+            <button
+              onClick={toggleFullscreen}
+              className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 w-10 h-10 bg-black/50 hover:bg-black/70 backdrop-blur-md text-white rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer"
+            >
+              <i className="fa-solid fa-expand text-sm" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Product Details */}
       <div className="container mx-auto px-2 lg:px-0 max-w-[550px] md:max-w-[720px] lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]">
