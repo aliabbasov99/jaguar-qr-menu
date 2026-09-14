@@ -2,10 +2,12 @@ import logo from "../assets/img/logo.svg";
 import { useEffect, useState } from "react";
 import heroImg from "../assets/img/hero.jpg";
 import divider from "../assets/img/divider.svg";
+import noPhoto from "../assets/img/no_photo.jpeg"
 
 // Statik mətnlərin və qrup adlarının çevirisi
 const translations = {
   az: {
+    all: "Hamısı",
     fresh: "Təzə",
     local: "Yerli",
     seasonal: "Mövsumi",
@@ -13,6 +15,7 @@ const translations = {
     selectedForYou: "Sizin üçün seçdik",
   },
   en: {
+    all: "All",
     fresh: "Fresh",
     local: "Local",
     seasonal: "Seasonal",
@@ -26,6 +29,7 @@ const translations = {
     }
   },
   ru: {
+    all: "Все",
     fresh: "Свежий",
     local: "Местный",
     seasonal: "Сезонный",
@@ -47,7 +51,7 @@ const R2_PUBLIC_URL = "https://pub-28aba3035f5e4b4b9d2246f55c816246.r2.dev";
 const EXTENSIONS = ["jpg", "png", "webp", "jpeg", "JPG", "PNG", "WEBP"];
 
 export default function Home() {
-  const [activeGroup, setActiveGroup] = useState("");
+  const [activeGroup, setActiveGroup] = useState("ALL");
   const [data, setData] = useState(null);
 
   // Dili localStorage-dən oxuyuruq
@@ -71,10 +75,6 @@ export default function Home() {
       })
       .then((data) => {
         setData(data);
-        // İlk gələn məhsulun mGroup-unu aktiv tab kimi təyin edirik
-        if (data && data.length > 0) {
-          setActiveGroup(data[0].mGroup);
-        }
       })
       .catch((error) => console.error("Data çəkilərkən xəta:", error));
   }, []);
@@ -95,13 +95,12 @@ export default function Home() {
       e.target.src = `${R2_PUBLIC_URL}/images/${mID}.${EXTENSIONS[nextIndex]}`;
     } else {
       e.target.onerror = null;
-      e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
+      e.target.src = noPhoto;
     }
   };
 
-  // API-dən gələn məhsullardakı təkrarolunmaz (unique) mGroup siyahısını alırıq
   const availableGroups = data
-    ? Array.from(new Set(data.map((item) => item.mGroup))).filter(Boolean)
+    ? ["ALL", ...Array.from(new Set(data.map((item) => item.mGroup))).filter(Boolean)]
     : [];
 
   return (
@@ -150,7 +149,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Kateqoriya Düymələri Slider/Tab (Sticky Yuxarı Sabitlənmə) */}
+      {/* Kateqoriya Düymələri Slider/Tab */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md py-2 shadow-xs transition-all">
         <div className="container mx-auto px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl">
           <div className="flex items-center justify-start overflow-x-auto gap-2 whitespace-nowrap no-scrollbar">
@@ -169,7 +168,7 @@ export default function Home() {
                   <path d="M7 2v20"/>
                   <path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/>
                 </svg>
-                <span>{t.groups?.[group] || group}</span>
+                <span>{group === "ALL" ? t.all : (t.groups?.[group] || group)}</span>
               </button>
             ))}
           </div>
@@ -192,20 +191,20 @@ export default function Home() {
       <div className="container mx-auto py-4 px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]">
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 items-stretch">
           {data
-            ?.filter((product) => product.mGroup === activeGroup)
+            ?.filter((product) => activeGroup === "ALL" || product.mGroup === activeGroup)
             ?.map((product) => (
               <div key={product.mID} className="h-full flex flex-col">
-                <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col border border-gray-100 h-full">
+                <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col  h-full">
                   
-                  {/* Şəkil konteyneri sabit Aspect Ratio ilə sıxışdırılıb */}
-                <div className="w-full aspect-[4/3] relative overflow-hidden shrink-0 bg-gray-50">
-                  <img 
-                    src={`${R2_PUBLIC_URL}/images/${product.mID}.${EXTENSIONS[0]}`} 
-                    onError={(e) => handleImageError(e, product.mID)}
-                    alt={product.mName} 
-                    className="absolute inset-0 w-full h-full object-fill" 
-                  />
-                </div>
+                  {/* Şəkil konteyneri: border-b istifadə olundu */}
+                  <div className="w-full aspect-[4/3] relative overflow-hidden shrink-0 bg-gray-50 border-b border-[#3a513e]">
+                    <img 
+                      src={`${R2_PUBLIC_URL}/images/${product.mID}.${EXTENSIONS[0]}`} 
+                      onError={(e) => handleImageError(e, product.mID)}
+                      alt={product.mName} 
+                      className="absolute inset-0 w-full h-full object-fill" 
+                    />
+                  </div>
 
                   <div className="px-4 py-3 flex flex-col justify-between flex-1">
                     <div>
