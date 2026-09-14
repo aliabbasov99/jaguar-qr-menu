@@ -41,6 +41,9 @@ const translations = {
   }
 };
 
+// Cloudflare R2 Pulsuz Public URL-iniz
+const R2_PUBLIC_URL = "https://pub-28aba3035f5e4b4b9d2246f55c816246.r2.dev";
+
 export default function Home() {
   const [activeGroup, setActiveGroup] = useState("");
   const [data, setData] = useState(null);
@@ -125,7 +128,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Kateqoriya Düymələri Slider/Tab (Dinamik mGroup-lara görə) */}
+      {/* Kateqoriya Düymələri Slider/Tab */}
       <div className="container mx-auto px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl mt-2">
         <div className="flex items-center justify-start overflow-x-auto gap-2 whitespace-nowrap no-scrollbar py-2">
           {availableGroups.map((group) => (
@@ -138,7 +141,6 @@ export default function Home() {
                   : "bg-[#f9f3e7] text-[#3a513e] border border-[#cac2a7]/40 hover:bg-[#f5ebd7]"
               }`}
             >
-              {/* Utensils SVG İkonu */}
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                 <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>
                 <path d="M7 2v20"/>
@@ -162,7 +164,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Məhsullar Siyahısı (Seçilmiş activeGroup-a görə süzülür) */}
+      {/* Məhsullar Siyahısı */}
       <div className="container mx-auto py-4 px-2 lg:px-0 max-w-137.5 md:max-w-180 lg:max-w-4xl xl:max-w-6xl 2xl:max-w-7xl text-[#3a513e]">
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 items-stretch">
           {data
@@ -171,7 +173,17 @@ export default function Home() {
               <Link key={product.mID} to={`./mehsul/${product.mID}`} className="h-full flex flex-col">
                 <div className="bg-white rounded-[25px] overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col border border-gray-100 h-full">
                   <div className="w-full aspect-4/3 overflow-hidden shrink-0">
-                    <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c" alt={product.mName} className="w-full h-full object-cover" />
+                    {/* Dinamik R2 Şəkil Keçidi */}
+                    <img 
+                      src={`${R2_PUBLIC_URL}/images/${product.mID}.png`} 
+                      onError={(e) => {
+                        // Əgər həmin mID ilə şəkil R2-də tapılmazsa, default şəkil göstərir
+                        e.target.onerror = null; 
+                        e.target.src = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c";
+                      }}
+                      alt={product.mName} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                   <div className="px-4 py-3 flex flex-col justify-between flex-1">
                     <div>
